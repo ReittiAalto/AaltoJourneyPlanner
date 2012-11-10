@@ -463,4 +463,31 @@ $(document).ready(function(){
     $("body").append("<div id='time-chooser'></div>");
 
   }
+  
+  $("#sidebar").hammer({prevent_default:true}).bind("swipe", function(ev) {
+    console.log("Dragged time");
+      if (ev.direction == "right") {
+         newDate = $('#time').scroller("getDate");
+         newDate.setMinutes(newDate.getMinutes() + 5);
+         currentTime = new Date();
+         if (newDate.getMinutes() === currentTime.getMinutes() && newDate.getHours() === currentTime.getHours()) {
+            $("#now").addClass("selected");
+         } else {
+            $("#now").removeClass("selected");
+         }
+         $('#time').scroller('setDate', newDate, true);
+         
+      }
+      if (ev.direction == "left") {
+         newDate = $('#time').scroller("getDate");
+         newDate.setMinutes(newDate.getMinutes() - 5);
+         currentTime = new Date();
+         if (newDate.getMinutes() === currentTime.getMinutes() && newDate.getHours() === currentTime.getHours()) {
+            $("#now").addClass("selected");
+         } else {
+            $("#now").removeClass("selected");
+         }
+         $('#time').scroller('setDate', newDate, true);
+      }
+      });
 });
