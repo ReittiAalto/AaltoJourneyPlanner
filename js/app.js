@@ -456,6 +456,12 @@ $(document).ready(function(){
         $("#results").html("<h2>No routes!</h2>");
       }
     });
+    //Show kutsuplus dummy data
+    hours = $('#time').scroller("getDate").getHours();
+    minutes = $('#time').scroller("getDate").getMinutes();
+    timestr = hours + ":" + minutes;
+    console.log(timestr);
+    $("#kutsuplus").html("<h2> Matkatarjoukset </h2> <p> Price: Dummy </p> <p> Distance: Dummy <p> Departure: " + timestr  + " </p> <p> Arrival: Dummy </p>");
   }
   
   function getLegTypeString(typeId){
