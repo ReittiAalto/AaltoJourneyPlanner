@@ -20,28 +20,38 @@
 </head>
 <body>
   <h1>Aalto Journey Planner</h1>
-  <div id="map_canvas"></div>
-  <div id="sidebar">
-    <div id="timefield" data-role="fieldcontain">
-      <label for="from">From<br/>
+  <div id="top">
+    <div>
+      <label for="from">From
         <input type="text" name="from" id="from"/>
-      </label><br />
-      <label for="to">To<br/>
+      </label>
+    </div>
+    <div>
+      <label for="to">To
         <input type="text" name="to" id="to"/>
-      </label><br />
-      <div id="otaniemi"> O </div> <div id="taik"> T </div> <div id="kauppa"> K </div>
+
+      </label>
+    </div>
+    <div id="otaniemi"> O </div> <div id="taik"> T </div> <div id="kauppa"> K </div>
       <div id="clear"></div>
-      <label for="time">Departure time<br/>
+    <div id="timefield" data-role="fieldcontain">
+      <label for="time">Time
         <input type="text" name="time" id="time" class="mobiscroll" value=""/>
       </label>
       <a id="now" class="selected" href="javascript:;">Now</a>
     </div>
-    <div id="results"></div>
-    <div id='loader'>
-		<div id='circle_1' class='circle'></div>
-		<div id='circle_2' class='circle'></div>
-		<div id='circle_3' class='circle'></div>
-	</div>
+  </div>
+  <div id="map_canvas"></div>
+  <div id="bottom">
+    <div id="ajeloResults"></div>
+    <div id="hslResults">
+      <div id="results"></div>
+      <div id='loader'>
+        <div id='circle_1' class='circle'></div>
+        <div id='circle_2' class='circle'></div>
+        <div id='circle_3' class='circle'></div>
+      </div>
+    </div>
   </div>
   <div id="kutsuplus">
   <h1> Kutsuplus matkatarjoukset </h1>
