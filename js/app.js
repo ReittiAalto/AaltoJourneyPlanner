@@ -461,7 +461,8 @@ $(document).ready(function(){
     minutes = $('#time').scroller("getDate").getMinutes();
     timestr = hours + ":" + minutes;
     console.log(timestr);
-    $("#kutsuplus").html("<h2> Matkatarjoukset </h2> <p> Price: Dummy </p> <p> Distance: Dummy <p> Departure: " + timestr  + " </p> <p> Arrival: Dummy </p>");
+    buttonstr = '<button id="orderkutsu"> Order </button>';
+    $("#kutsuplus").html("<h2> Matkatarjoukset </h2> <p> Price: Dummy </p> <p> Distance: Dummy <p> Departure: " + timestr  + " </p> <p> Arrival: Dummy </p>" + buttonstr);
   }
   
   function getLegTypeString(typeId){
@@ -509,4 +510,6 @@ $(document).ready(function(){
     }
     getRoute();
   });
+  
+  
 });
