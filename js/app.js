@@ -95,6 +95,7 @@ $(document).ready(function(){
 
     var myOptions = {
       zoom:12,
+      maxZoom:16,
       center:latlng,
       streetViewControl:false,
       mapTypeControlOptions:{
@@ -298,6 +299,7 @@ $(document).ready(function(){
   }
 
   function showRoute(legs) {
+    console.log("showRoute");
     // remove any current lines
     for(var i in legLinesAndMarkers) {
       legLinesAndMarkers[i]["polyline"].setMap(null);
@@ -319,8 +321,8 @@ $(document).ready(function(){
         );
       }
       var path = [];
-      $.each(leg.locs,function(i,loc){
-        path.push(new google.maps.LatLng(loc.coord.y,loc.coord.x))
+      $.each(leg.shape,function(i,shape){
+        path.push(new google.maps.LatLng(shape.y,shape.x))
       });
       var line = createPolyline(path, type);
 
@@ -332,9 +334,9 @@ $(document).ready(function(){
     //console.log('code:'+code);
     var vehicleString = "";
     if (type === "train") {
-      vehicleString = code.substring(4,5);
+      vehicleString = " " + code.substring(4,5);
     } else if (type === "metro") {
-      vehicleString = "metro";
+      vehicleString = "";
     } else {
       vehicleString = code.substring(1,6).trim();
       var leadingZeros = 0;
@@ -345,7 +347,7 @@ $(document).ready(function(){
           break;
         }
       }
-      vehicleString = vehicleString.substring(leadingZeros);
+      vehicleString = " " + vehicleString.substring(leadingZeros);
     }
 
     return vehicleString;
@@ -374,65 +376,72 @@ $(document).ready(function(){
 
     var time = $("#time").val().replace(":","");
 
-    var params = "?request=route&from="+from+"&to="+to+"&time="+time+"";
+    var params = "?request=route&from="+from+"&to="+to+"&time="+time+"&detail=full";
 
     $.getJSON(config.api+params+defaultParams, function(data){
       $("#loader").fadeOut();
-      console.log(data);
       if (data && data[0]) {
         $.each(data, function(i,val){
           var route = val[0];
           var routePath= [];
+          var walkingLength = 0;
 
           console.log(route);
           var result = $("<div class='result'></div>");
           //if ()
-          result.append("<h3>"+(i+1)+"</h3>");
+          //result.append("<h3>"+(i+1)+"</h3>");
           var startTime = route.legs[0].locs[0].depTime;
           var endTime = route.legs[route.legs.length-1].locs[route.legs[route.legs.length-1].locs.length-1].arrTime;
+          var routeLength = Math.round(route.length/100)/10;
+          result.append("<div class='startTime'>Departure " + startTime.substr(8,2) + ":" + startTime.substr(10,2) + "</div>");
+          result.append("<div class='details'>Length " + routeLength + " km, Duration " + route.duration/60
+            + " mins<span id='walk-" + i +"'></span></div>");
+          result.append("<div class='endTime'>Arrival " + endTime.substr(8,2) + ":" + endTime.substr(10,2) + "</div>");
+          /*
           result.append("<h4>"
               +startTime.substr(8,2)+":"+startTime.substr(10,2)
               +"&ndash;"
               +endTime.substr(8,2)+":"+endTime.substr(10,2)
               +" ("+route.duration/60 + " mins)"
               +"</h4>");
+          */
 
-          var legs = $("<ol></ol>").appendTo(result);
+          var legs = $("<span class='legs'></span>").appendTo(result);
 
-          $.each(route.legs, function(i,leg){
-            var legItem = $("<li></li>").appendTo(legs);
-
-            var time = leg.locs[0].depTime;
-            legItem.append("<span class='time'>"+time.substr(8,2)+":"+time.substr(10,2)+"</span> ");
-
-            var type = getLegTypeString(leg.type);
-            legItem.append("<span class='type'>"+type+"</span> ");
-
-            if(type === "walk"){
-               legItem.append("<span class='meters'>"+leg.length + " m</span>");
-            } else {
-              legItem.append("<span class='type'>" + formatVehicleCode(leg.code,type) + "</span> ");
-
-              var startEndString = "<span class='places'>";
-              if (leg.locs[0].name)
-                  startEndString += leg.locs[0].name;
-              else
-                  startEndString += "???";
-              startEndString += " &ndash; ";
-              if (leg.locs[leg.locs.length-1].name)
-                  startEndString += leg.locs[leg.locs.length-1].name;
-              else
-                  startEndString += "???";
-              startEndString += "</span>";
-
-              legItem.append(startEndString);
+          $.each(route.legs, function(j,leg){
+            if (j > 0) {
+              legs.append(" >> ");
             }
 
+            var time = leg.locs[0].depTime;
+            //legs.append(time.substr(8,2)+":"+time.substr(10,2) + " ");
+            var legElement = $("<span class='leg'></span>");
+            var type = getLegTypeString(leg.type);
+            if (type === "walk") {
+              //legElement.html("Walk, " + leg.length + " m");
+              legElement.html("Walk");
+              walkingLength += leg.length;
+            } else {
+              legElement.html(type.charAt(0).toUpperCase() + type.slice(1) + formatVehicleCode(leg.code,type));
+            }
+            legs.append(legElement);
+            legElement.click(function(event){
+              if ($(this).parent().parent().hasClass("selected")) {
+                var legPath = [];
+                legPath.push(new google.maps.LatLng(leg.locs[0].coord.y, leg.locs[0].coord.x));
+                legPath.push(new google.maps.LatLng(leg.locs[leg.locs.length - 1].coord.y, leg.locs[leg.locs.length - 1].coord.x));
+                console.log(legPath);
+                zoomMapToCoordinates(legPath);
+                return false;
+              }
+            });
 
-            $.each(leg.locs,function(i,loc){
-              routePath.push(new google.maps.LatLng(loc.coord.y,loc.coord.x))
-            })
+            $.each(leg.shape,function(z,loc){
+              routePath.push(new google.maps.LatLng(loc.y,loc.x))
+            });
           });
+
+          result.find("span#walk-" + i).html(", Walking " + Math.round(walkingLength/100)/10 + " km");
 
           //result.append("Length: " + route.length + "m<br/>");
           //result.append("Duration: " + route.duration/60 + " minutes");
@@ -440,9 +449,13 @@ $(document).ready(function(){
 
           // Show route on map when clicked
           result.click(function(){
-            showRoute(route.legs);
-            $(".result").removeClass("selected");
-            result.addClass("selected");
+            if (!$(this).hasClass("selected")) {
+              console.log(routePath);
+              zoomMapToCoordinates(routePath);
+              showRoute(route.legs);
+              $(".result").removeClass("selected");
+              result.addClass("selected");
+            }
           });
 
           // Show the first result immediately
@@ -450,6 +463,13 @@ $(document).ready(function(){
             showRoute(route.legs);
             result.addClass("selected")
           }
+        });
+        $.each($("span.legs"), function(i, legs) {
+          console.log("legs: " + $(this).width() + " with font-size: " + $(this).css("font-size"));
+          while ($(this).width() > ($(this).parent().width() * 0.9)) {
+            $(this).css("font-size", $(this).css("font-size").match(/^([0-9]+)/)[0] - 1 + "px");
+          }
+          console.log("legs: " + $(this).width() + " with font-size: " + $(this).css("font-size"));
         });
       } else {
         $("#results").html("<h2>No routes!</h2>");
@@ -473,6 +493,14 @@ $(document).ready(function(){
       case "12": return "train"; break;
       default: return "bus";
     } 
+  }
+
+  function zoomMapToCoordinates(latLngArray) {
+    var bounds = new google.maps.LatLngBounds();
+    for (var i = 0; i < latLngArray.length; i++) {
+      bounds.extend(latLngArray[i]);
+    }
+    map.fitBounds(bounds);
   }
 
   function initializeTimeChooser() {

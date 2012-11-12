@@ -105,9 +105,13 @@ h1 {
   overflow: scroll;
 }
 
-#ajeloResults {
+#kutsuplus {
   width: 50%;
   float: left;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: white;
+  box-shadow: -1px -1px 10px rgba(0,0,0, .5);
 }
 
 #hslResults {
@@ -125,6 +129,7 @@ h1 {
   -moz-transition: all .3s ease-in-out;
   transition: all .3s ease-in-out;
   position: relative;
+  text-align: center;
 }
 .result:hover{
   background-color: #efe;
@@ -134,11 +139,35 @@ h1 {
   background-color: #cfc;
   box-shadow: 1px 1px 5px rgba(0,0,0, .5);
 }
+.result div {
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 15px;
+}
+.result div.startTime,
+.result div.endTime,
+.result div.details {
+  display: inline-table;
+}
+.result div.startTime,
+.result div.endTime {
+  width: 15%;
+}
+.result div.endTime {
+  text-align: right;
+}
+.result div.details {
+  width: 70%;
+  text-align: center;
+}
+.result span.legs {
+  white-space: nowrap;
+}
 .result h3 {
   margin: 0;
   font-size: 22px;
   width: 30px;
-  height: 30px;
+  height: 100%;
   line-height: 30px;
   text-align: center;
   font-weight: bold;
@@ -172,9 +201,10 @@ h1 {
   display: block;
   float: left;
 }
-.result .type {
-  color: #000;
-  font-weight: bold;
+.result .leg {
+  border: 2px solid #999;
+  padding: 2px;
+  border-radius: 5px;
 }
 .result .meters {
 
@@ -219,16 +249,4 @@ h1 {
 	0%{opacity:0.3;}
 	50%{opacity:1;background-color:#111}
 	100%{opacity:0.3;}
-}
-
-#kutsuplus {
-  width: 75%;
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 25%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  background: white;
-  box-shadow: -1px -1px 10px rgba(0,0,0, .5);
 }
