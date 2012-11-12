@@ -446,7 +446,7 @@ $(document).ready(function(){
           //result.append("Length: " + route.length + "m<br/>");
           //result.append("Duration: " + route.duration/60 + " minutes");
           $("#results").append(result);
-
+          zoomMapToCoordinates(routePath);
           // Show route on map when clicked
           result.click(function(){
             if (!$(this).hasClass("selected")) {
