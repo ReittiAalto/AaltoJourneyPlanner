@@ -510,6 +510,27 @@ $(document).ready(function(){
 
   }
   
+  $("#otaniemi").click(function () {
+    lat = 60.186982;
+    lng = 24.827256;
+    dest = new google.maps.LatLng(lat, lng);
+    routeTo(dest);
+  });
+  
+  $("#taik").click(function () {
+    lat = 60.20875;
+    lng = 24.97562;
+    dest = new google.maps.LatLng(lat, lng);
+    routeTo(dest);
+  });
+  
+  $("#kauppa").click(function () {
+    lat = 60.172058;
+    lng = 24.923424;
+    dest = new google.maps.LatLng(lat, lng);
+    routeTo(dest);
+  });
+  
   $("#sidebar").hammer({prevent_default:true}).bind("swipe", function (ev) {
     console.log("Dragged time");
     if (ev.direction == "right") {
