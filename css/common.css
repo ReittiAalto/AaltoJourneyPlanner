@@ -231,3 +231,33 @@ input#time {
   background: white;
   box-shadow: -1px -1px 10px rgba(0,0,0, .5);
 }
+
+#otaniemi {
+  width: 10%;
+  float: left;
+  text-align: center;
+  background-color: green;
+}
+
+#taik {
+  width: 10%;
+  background-color: red;
+  text-align: center;
+  float: left;
+}
+
+#kauppa{
+  width: 10%;
+  background-color: blue;
+  text-align: center;
+  float: left;
+}
+
+#clear{
+    
+    width: 100%;
+    height: 1px;
+    margin: 0 0 -1px;
+    clear: both;
+
+}
