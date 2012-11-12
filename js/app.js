@@ -22,7 +22,7 @@ $(document).ready(function(){
     	timeFormat: 'HH:ii',
     	onSelect: function(){
     		$("#now").removeClass("selected");
-      		getRoute()
+      		getRoute();
     	}
     });
     $('#now').click(function(){
@@ -188,6 +188,7 @@ $(document).ready(function(){
   }
 
   function addEndMarker(latLng) {
+    console.log("addEndMarker: " + latLng);
     var endIcon = new google.maps.MarkerImage("images/goal.png",null,null,new google.maps.Point(17,52));
     endMarker = new google.maps.Marker({
       position: latLng,
@@ -195,7 +196,6 @@ $(document).ready(function(){
       icon: endIcon
     });
     endMarker.setMap(map);
-    google.maps.event.addListener(endMarker, 'mouseup', getRoute);
   }
 
   function initializeSwitches() {
@@ -351,7 +351,7 @@ $(document).ready(function(){
     return vehicleString;
   }
 
-  function getRoute(){
+  function getRoute() {
     console.log("getRoute");
     
     if(!startMarker || !endMarker){
@@ -362,15 +362,14 @@ $(document).ready(function(){
     
     // Clear current data
     $("#results").empty();
-    //polyline.setPath([]);
     showRoute({});
 
-    var fromLatLng = startMarker.getPosition()
-    var from = fromLatLng.lng() + "," + fromLatLng.lat()
+    var fromLatLng = startMarker.getPosition();
+    var from = fromLatLng.lng() + "," + fromLatLng.lat();
     //console.log("from:"+from)
     
-    var toLatLng = endMarker.getPosition()
-    var to = toLatLng.lng() + "," + toLatLng.lat()
+    var toLatLng = endMarker.getPosition();
+    var to = toLatLng.lng() + "," + toLatLng.lat();
     //console.log("to:"+to)
 
     var time = $("#time").val().replace(":","");
