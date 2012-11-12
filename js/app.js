@@ -382,7 +382,7 @@ $(document).ready(function(){
       if (data && data[0]) {
         $.each(data, function(i,val){
           var route = val[0];
-          var routePath= []
+          var routePath= [];
 
           console.log(route);
           var result = $("<div class='result'></div>");
@@ -397,15 +397,15 @@ $(document).ready(function(){
               +" ("+route.duration/60 + " mins)"
               +"</h4>");
 
-          var legs = $("<ol></ol>").appendTo(result)
+          var legs = $("<ol></ol>").appendTo(result);
 
           $.each(route.legs, function(i,leg){
-            var legItem = $("<li></li>").appendTo(legs)
+            var legItem = $("<li></li>").appendTo(legs);
 
             var time = leg.locs[0].depTime;
             legItem.append("<span class='time'>"+time.substr(8,2)+":"+time.substr(10,2)+"</span> ");
 
-            var type = getLegTypeString(leg.type)
+            var type = getLegTypeString(leg.type);
             legItem.append("<span class='type'>"+type+"</span> ");
 
             if(type === "walk"){
@@ -420,7 +420,7 @@ $(document).ready(function(){
                   startEndString += "???";
               startEndString += " &ndash; ";
               if (leg.locs[leg.locs.length-1].name)
-                  startEndString += leg.locs[leg.locs.length-1].name
+                  startEndString += leg.locs[leg.locs.length-1].name;
               else
                   startEndString += "???";
               startEndString += "</span>";
@@ -441,9 +441,9 @@ $(document).ready(function(){
           // Show route on map when clicked
           result.click(function(){
             showRoute(route.legs);
-            $(".result").removeClass("selected")
-            result.addClass("selected")
-          })
+            $(".result").removeClass("selected");
+            result.addClass("selected");
+          });
 
           // Show the first result immediately
           if(i === 0){
