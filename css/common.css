@@ -220,3 +220,15 @@ h1 {
 	50%{opacity:1;background-color:#111}
 	100%{opacity:0.3;}
 }
+
+#kutsuplus {
+  width: 75%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 25%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: white;
+  box-shadow: -1px -1px 10px rgba(0,0,0, .5);
+}
