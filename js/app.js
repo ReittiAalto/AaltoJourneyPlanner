@@ -1,6 +1,8 @@
 $(document).ready(function(){
   console.log("Hello World from app.js");
   
+  var defaultParams = "&format=json&epsg_in=wgs84&epsg_out=wgs84&user="+config.user+"&pass="+config.pass;
+  
   initializeMap();
   initializeTimeSelector();
   
@@ -25,7 +27,7 @@ $(document).ready(function(){
     });
     $('#now').click(function(){
     	setTimeNow();
-    })
+    });
     setTimeNow();
   }
   
@@ -34,100 +36,98 @@ $(document).ready(function(){
   	$("#now").addClass("selected");
   }
 
-  var legLinesAndMarkers;
+  function setPositionMarker(position) {
+    console.log("set position marker");
 
-  function initializeMap() {
-    var c = config.locs.mapcenter;
-    var latlng = new google.maps.LatLng(c.lat,c.lng);
-
-	var customMapType = new google.maps.StyledMapType([
-	  {
-		stylers: [
-		  { gamma: 0.6 }
-		]
-	  },{
-		featureType: "road.highway",
-		elementType: "labels",
-		stylers: [
-		  { visibility: "off" }
-		]
-	  },{
-		featureType: "water",
-		stylers: [
-		  { lightness: -20 }
-		]
-	  },{
-		featureType: "poi",
-		elementType: "labels",
-		stylers: [
-		  { visibility: "off" }
-		]
-	  }
-	], {name: "AaltoWindow style"});
-	
-    var myOptions = {
-      zoom: 12,
-      center: latlng,
-      streetViewControl: false,
-      mapTypeControlOptions: {
-      		mapTypeIds: [google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID, 'custom']
-    	}
-    };
-    map = new google.maps.Map(document.getElementById("map_canvas"),
-    myOptions);
-    
-    map.mapTypes.set('custom', customMapType);
-    map.setMapTypeId('custom');
-
-    var startDefaultLatLng = new google.maps.LatLng(60.1885493977,24.8339133406);
+    // var startDefaultLatLng = new google.maps.LatLng(60.1885493977,24.8339133406);
     var endDefaultLatLng = null;
-
-    // Get start and end from config, if available
-    $.each(config.locs, function(i, loc){
-      if ("start" in loc) {
-        startDefaultLatLng = new google.maps.LatLng(loc.lat,loc.lng);
-      } else if ("end" in loc) {
-        endDefaultLatLng = new google.maps.LatLng(loc.lat,loc.lng);
-      }
-    });
-
 
     var startIcon = new google.maps.MarkerImage("images/your-position-small.png",null,null,new google.maps.Point(10,10));
     console.log(startIcon);
     startMarker = new google.maps.Marker({
-      position: startDefaultLatLng,
+      position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
       draggable: false,
       title: "Start",
       icon: startIcon
     });
     startMarker.setMap(map);
-    //google.maps.event.addListener(startMarker, 'mouseup', getRoute);
 
-    if (endDefaultLatLng) {
-      routeTo(endDefaultLatLng);
-    }
+    var params = "?request=reverse_geocode&limit=1&coordinate="
+      + position.coords.longitude + "," + position.coords.latitude;
+    console.log(config.api + params + defaultParams);
+    $.getJSON(config.api + params + defaultParams, function(data) {
+      $("#from").val(data[0].name);
+    });
+  }
+
+  function errorCallback(error) {
+    console.log("something went wrong: " + error);
+  }
+
+  function initializeMap() {
+    var c = config.locs.mapcenter;
+    var latlng = new google.maps.LatLng(c.lat, c.lng);
+
+    var customMapType = new google.maps.StyledMapType([
+      {
+        stylers:[
+          { gamma:0.6 }
+        ]
+      }, {
+        featureType:"road.highway",
+        elementType:"labels",
+        stylers:[
+          { visibility:"off" }
+        ]
+      }, {
+        featureType:"water",
+        stylers:[
+          { lightness:-20 }
+        ]
+      }, {
+        featureType:"poi",
+        elementType:"labels",
+        stylers:[
+          { visibility:"off" }
+        ]
+      }
+    ], {name:"AaltoWindow style"});
+
+    var myOptions = {
+      zoom:12,
+      center:latlng,
+      streetViewControl:false,
+      mapTypeControlOptions:{
+        mapTypeIds:[google.maps.MapTypeId.ROADMAP, google.maps.MapTypeId.HYBRID, 'custom']
+      }
+    };
+    map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+
+    map.mapTypes.set('custom', customMapType);
+    map.setMapTypeId('custom');
+
+    navigator.geolocation.getCurrentPosition(setPositionMarker, errorCallback, {maximumAge:600000});
 
     otherMarkers = [];
-    $.each(config.locs, function(i, loc){
+    $.each(config.locs, function (i, loc) {
       if (!("nomap" in loc)) {
-        console.log('other location:'+config.locs[i].title);
+        console.log('other location:' + config.locs[i].title);
         var latLng = new google.maps.LatLng(loc.lat, loc.lng);
 
         //old icon: "https://chart.googleapis.com/chart?chst=d_map_spin&chld=1|0|ffffff|9|b|"+loc.title
         var icon = "https://chart.googleapis.com/chart?chst=d_simple_text_icon_below&chld="
-            +loc.title+"|14|fff|"
-            +"star|24|ffff00|333";
+          + loc.title + "|14|fff|" + "star|24|ffff00|333";
 
         var marker = new google.maps.Marker({
-          position: latLng,
-          draggable: false,
-          title: loc.title,
-          zIndex: 0,
-          icon: icon
+          position:latLng,
+          draggable:false,
+          title:loc.title,
+          zIndex:0,
+          icon:icon
         });
         marker.setMap(map);
         google.maps.event.addListener(marker, 'mouseup',
-          function() {
+          function () {
             routeTo(latLng);
           }
         );
@@ -142,32 +142,47 @@ $(document).ready(function(){
       this._length = length;
       var me = this;
       me._map = map;
-      google.maps.event.addListener(map, 'mousedown', function(e) { me._onMouseDown(e) });
-      google.maps.event.addListener(map, 'mouseup', function(e) { me._onMouseUp(e) });
+      google.maps.event.addListener(map, 'mousedown', function (e) {
+        me._onMouseDown(e)
+      });
+      google.maps.event.addListener(map, 'mouseup', function (e) {
+        me._onMouseUp(e)
+      });
     }
-    LongClick.prototype._onMouseUp = function(e) {
+
+    LongClick.prototype._onMouseUp = function (e) {
       var now = +new Date;
       if (now - this._down > this._length) {
         if (Math.abs(e.pixel.x - this._x) < config.longPressThreshold
-            && Math.abs(e.pixel.y - this._y) < config.longPressThreshold) {
+          && Math.abs(e.pixel.y - this._y) < config.longPressThreshold) {
           google.maps.event.trigger(this._map, 'longpress', e);
         }
       }
-    }
-    LongClick.prototype._onMouseDown = function(e) {
+    };
+    LongClick.prototype._onMouseDown = function (e) {
       this._down = +new Date;
       this._x = e.pixel.x;
       this._y = e.pixel.y;
-    }
+    };
     new LongClick(map, 300);
-    google.maps.event.addListener(map, 'longpress', function(e) { routeTo(e.latLng); });
-    google.maps.event.addListener(map, 'rightclick', function(e) { routeTo(e.latLng); });
+    google.maps.event.addListener(map, 'longpress', function (e) {
+      routeTo(e.latLng);
+    });
+    google.maps.event.addListener(map, 'rightclick', function (e) {
+      routeTo(e.latLng);
+    });
   }
 
   function routeTo(latLng) {
+    console.log("routeTo " + latLng);
     if (!endMarker)
       addEndMarker(latLng);
 
+    var coords = String(latLng).replace("(", "").replace(")", "").split(", ");
+    var params = "?request=reverse_geocode&limit=1&coordinate=" + coords[1] + "," + coords[0];
+    $.getJSON(config.api + params + defaultParams, function(data) {
+      $("#to").val(data[0].name);
+    });
     endMarker.setPosition(latLng);
     getRoute();
   }
@@ -337,7 +352,7 @@ $(document).ready(function(){
   }
 
   function getRoute(){
-    console.log("getRoute")
+    console.log("getRoute");
     
     if(!startMarker || !endMarker){
     	return false;
@@ -346,7 +361,7 @@ $(document).ready(function(){
     $("#loader").fadeIn();
     
     // Clear current data
-    $("#results").empty()
+    $("#results").empty();
     //polyline.setPath([]);
     showRoute({});
 
@@ -360,10 +375,9 @@ $(document).ready(function(){
 
     var time = $("#time").val().replace(":","");
 
-    var params = "?request=route&from="+from+"&to="+to+"&time="+time+"&format=json&epsg_in=wgs84&epsg_out=wgs84"
-    var account = "&user="+config.user+"&pass="+config.pass
+    var params = "?request=route&from="+from+"&to="+to+"&time="+time+"";
 
-    $.getJSON(config.api+params+account, function(data){
+    $.getJSON(config.api+params+defaultParams, function(data){
       $("#loader").fadeOut();
       console.log(data);
       if (data && data[0]) {
@@ -458,37 +472,35 @@ $(document).ready(function(){
   function initializeTimeChooser() {
     console.log("timeChooser");
 
-    $("body").append("<div id='overlay'></div>");
-
-    $("body").append("<div id='time-chooser'></div>");
+    $("body").append("<div id='overlay'></div>").append("<div id='time-chooser'></div>");
 
   }
   
-  $("#sidebar").hammer({prevent_default:true}).bind("swipe", function(ev) {
+  $("#sidebar").hammer({prevent_default:true}).bind("swipe", function (ev) {
     console.log("Dragged time");
-      if (ev.direction == "right") {
-         newDate = $('#time').scroller("getDate");
-         newDate.setMinutes(newDate.getMinutes() + 5);
-         currentTime = new Date();
-         if (newDate.getMinutes() === currentTime.getMinutes() && newDate.getHours() === currentTime.getHours()) {
-            $("#now").addClass("selected");
-         } else {
-            $("#now").removeClass("selected");
-         }
-         $('#time').scroller('setDate', newDate, true);
-         getRoute();
+    if (ev.direction == "right") {
+      newDate = $('#time').scroller("getDate");
+      newDate.setMinutes(newDate.getMinutes() + 5);
+      currentTime = new Date();
+      if (newDate.getMinutes() === currentTime.getMinutes() && newDate.getHours() === currentTime.getHours()) {
+        $("#now").addClass("selected");
+      } else {
+        $("#now").removeClass("selected");
       }
-      if (ev.direction == "left") {
-         newDate = $('#time').scroller("getDate");
-         newDate.setMinutes(newDate.getMinutes() - 5);
-         currentTime = new Date();
-         if (newDate.getMinutes() === currentTime.getMinutes() && newDate.getHours() === currentTime.getHours()) {
-            $("#now").addClass("selected");
-         } else {
-            $("#now").removeClass("selected");
-         }
-         $('#time').scroller('setDate', newDate, true);
-         getRoute();
+      $('#time').scroller('setDate', newDate, true);
+
+    }
+    if (ev.direction == "left") {
+      newDate = $('#time').scroller("getDate");
+      newDate.setMinutes(newDate.getMinutes() - 5);
+      currentTime = new Date();
+      if (newDate.getMinutes() === currentTime.getMinutes() && newDate.getHours() === currentTime.getHours()) {
+        $("#now").addClass("selected");
+      } else {
+        $("#now").removeClass("selected");
       }
-      });
+      $('#time').scroller('setDate', newDate, true);
+    }
+    getRoute();
+  });
 });
