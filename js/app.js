@@ -476,7 +476,7 @@ $(document).ready(function(){
             $("#now").removeClass("selected");
          }
          $('#time').scroller('setDate', newDate, true);
-         
+         getRoute();
       }
       if (ev.direction == "left") {
          newDate = $('#time').scroller("getDate");
@@ -488,6 +488,7 @@ $(document).ready(function(){
             $("#now").removeClass("selected");
          }
          $('#time').scroller('setDate', newDate, true);
+         getRoute();
       }
       });
 });
