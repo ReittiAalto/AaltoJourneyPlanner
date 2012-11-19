@@ -12,6 +12,10 @@ $(document).ready(function(){
   var otherMarkers;
   var polyline;
   var legLinesAndMarkers;
+  var directionsDisplay;
+  var directionsService = new google.maps.DirectionsService();
+  var distance;
+
 
   function initializeTimeSelector(){
     var now = new Date();
@@ -172,6 +176,9 @@ $(document).ready(function(){
     google.maps.event.addListener(map, 'rightclick', function (e) {
       routeTo(e.latLng);
     });
+    
+    directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsDisplay.setMap(map);
   }
 
   function routeTo(latLng) {
@@ -475,13 +482,26 @@ $(document).ready(function(){
         $("#results").html("<h2>No routes!</h2>");
       }
     });
+    var request = {
+        origin:startMarker.getPosition(),
+        destination:endMarker.getPosition(),
+        travelMode: google.maps.TravelMode.DRIVING
+    };
+    directionsService.route(request, function(result, status) {
+        if (status == google.maps.DirectionsStatus.OK) {
+            directionsDisplay.setDirections(result);
+        }
+        distance = result.routes[0].legs[0].distance.text;
+        console.log("Route length: " + result.routes[0].legs[0].distance.text);
+    });
+
     //Show kutsuplus dummy data
     hours = $('#time').scroller("getDate").getHours();
     minutes = $('#time').scroller("getDate").getMinutes();
     timestr = hours + ":" + minutes;
     console.log(timestr);
     buttonstr = '<button id="orderkutsu"> Order </button>';
-    $("#kutsuplus").html("<h2> Matkatarjoukset </h2> <p> Price: Dummy </p> <p> Distance: Dummy <p> Departure: " + timestr  + " </p> <p> Arrival: Dummy </p>" + buttonstr);
+    $("#kutsuplus").html("<h2> Matkatarjoukset </h2> <p> Price: Dummy </p> <p> Distance: " + distance + " <p> Departure: " + timestr  + " </p> <p> Arrival: Dummy </p>" + buttonstr);
   }
   
   function getLegTypeString(typeId){
