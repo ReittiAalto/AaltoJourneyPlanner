@@ -189,14 +189,13 @@ $(document).ready(function(){
     });
     
     var kutsuplusPolyline = new google.maps.Polyline({
+      map: map,
       strokeColor: '#19942E',
       strokeOpacity: 0.7,
       strokeWeight: 7
     });
-    var kutsuplusMarker = new google.maps.Marker({
-      visible: false
-    });
-    directionsDisplay = new google.maps.DirectionsRenderer({draggable: false, polylineOptions: kutsuplusPolyline, markerOptions: kutsuplusMarker});
+    // If directionsDisplay uses the kutsuplusPolyline as polylineOptions, some routes are misdisplayed.
+    directionsDisplay = new google.maps.DirectionsRenderer({preserveViewport: true, draggable: false, suppressMarkers: true});
     directionsDisplay.setMap(map);
   }
 
@@ -508,21 +507,15 @@ $(document).ready(function(){
         provideRouteAlternatives: true
     };
     directionsService.route(request, function(result, status) {
-        if (status == google.maps.DirectionsStatus.OK) {
-          var shortestDistance = Number.MAX_VALUE;
-          var shortestDistanceIndex = -1;
-          for (var i = 0; i < result.routes.length; i++) {
-            if (result.routes[i].legs[0].distance.value < shortestDistance) {
-              shortestDistance = result.routes[i].legs[0].distance.value;
-              shortestDistanceIndex = i;
-            }
-          }
-          result.routes = result.routes.slice(shortestDistanceIndex, shortestDistanceIndex+1);
-          directionsDisplay.setDirections(result);
-          distance = result.routes[0].legs[0].distance.text;
-          console.log("Route length: " + distance);
-          console.log("Shortest distance: " + metersToKilometers(shortestDistance) + " km");
-        }
+      if (directionsDisplay != null) {
+        directionsDisplay.setDirections({routes: []});
+      }
+      if (status == google.maps.DirectionsStatus.OK) {
+        result.routes = result.routes.sort(function(route1,route2) {return route1.legs[0].distance.value - route2.legs[0].distance.value});
+        directionsDisplay.setDirections(result);
+        distance = result.routes[0].legs[0].distance.text;
+        console.log("Route length: " + distance);
+      }
     });
 
     //Show kutsuplus dummy data
