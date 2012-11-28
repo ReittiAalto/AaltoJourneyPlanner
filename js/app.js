@@ -448,7 +448,7 @@ $(document).ready(function(){
                 var legPath = [];
                 legPath.push(new google.maps.LatLng(leg.locs[0].coord.y, leg.locs[0].coord.x));
                 legPath.push(new google.maps.LatLng(leg.locs[leg.locs.length - 1].coord.y, leg.locs[leg.locs.length - 1].coord.x));
-                console.log(legPath);
+                // console.log(legPath);
                 zoomMapToCoordinates(legPath);
                 return false;
               }
@@ -459,7 +459,7 @@ $(document).ready(function(){
             });
           });
 
-          result.find("span#walk-" + i).html(", Walking " + Math.round(walkingLength/100)/10 + " km");
+          result.find("span#walk-" + i).html(", Walking " + metersToKilometers(walkingLength) + " km");
 
           //result.append("Length: " + route.length + "m<br/>");
           //result.append("Duration: " + route.duration/60 + " minutes");
@@ -468,7 +468,7 @@ $(document).ready(function(){
           // Show route on map when clicked
           result.click(function(){
             if (!$(this).hasClass("selected")) {
-              console.log(routePath);
+              // console.log(routePath);
               zoomMapToCoordinates(routePath);
               showRoute(route.legs);
               $(".result").removeClass("selected");
@@ -483,11 +483,11 @@ $(document).ready(function(){
           }
         });
         $.each($("span.legs"), function(i, legs) {
-          console.log("legs: " + $(this).width() + " with font-size: " + $(this).css("font-size"));
+          // console.log("legs: " + $(this).width() + " with font-size: " + $(this).css("font-size"));
           while ($(this).width() > ($(this).parent().width() * 0.9)) {
             $(this).css("font-size", $(this).css("font-size").match(/^([0-9]+)/)[0] - 1 + "px");
           }
-          console.log("legs: " + $(this).width() + " with font-size: " + $(this).css("font-size"));
+          // console.log("legs: " + $(this).width() + " with font-size: " + $(this).css("font-size"));
         });
       } else {
         $("#results").html("<h2>No routes!</h2>");
@@ -496,14 +496,25 @@ $(document).ready(function(){
     var request = {
         origin:startMarker.getPosition(),
         destination:endMarker.getPosition(),
-        travelMode: google.maps.TravelMode.DRIVING
+        travelMode: google.maps.TravelMode.DRIVING,
+        provideRouteAlternatives: true
     };
     directionsService.route(request, function(result, status) {
         if (status == google.maps.DirectionsStatus.OK) {
-            directionsDisplay.setDirections(result);
+          var shortestDistance = Number.MAX_VALUE;
+          var shortestDistanceIndex = -1;
+          for (var i = 0; i < result.routes.length; i++) {
+            if (result.routes[i].legs[0].distance.value < shortestDistance) {
+              shortestDistance = result.routes[i].legs[0].distance.value;
+              shortestDistanceIndex = i;
+            }
+          }
+          result.routes = result.routes.slice(shortestDistanceIndex, shortestDistanceIndex+1);
+          directionsDisplay.setDirections(result);
+          distance = result.routes[0].legs[0].distance.text;
+          console.log("Route length: " + distance);
+          console.log("Shortest distance: " + metersToKilometers(shortestDistance) + " km");
         }
-        distance = result.routes[0].legs[0].distance.text;
-        console.log("Route length: " + result.routes[0].legs[0].distance.text);
     });
 
     //Show kutsuplus dummy data
@@ -539,6 +550,10 @@ $(document).ready(function(){
 
     $("body").append("<div id='overlay'></div>").append("<div id='time-chooser'></div>");
 
+  }
+  
+  function metersToKilometers(meters) {
+    return Math.round(meters/100)/10;
   }
   
   $("#otaniemi").click(function () {
