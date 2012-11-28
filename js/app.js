@@ -188,7 +188,15 @@ $(document).ready(function(){
       routeTo(e.latLng);
     });
     
-    directionsDisplay = new google.maps.DirectionsRenderer();
+    var kutsuplusPolyline = new google.maps.Polyline({
+      strokeColor: '#19942E',
+      strokeOpacity: 0.7,
+      strokeWeight: 7
+    });
+    var kutsuplusMarker = new google.maps.Marker({
+      visible: false
+    });
+    directionsDisplay = new google.maps.DirectionsRenderer({draggable: false, polylineOptions: kutsuplusPolyline, markerOptions: kutsuplusMarker});
     directionsDisplay.setMap(map);
   }
 
