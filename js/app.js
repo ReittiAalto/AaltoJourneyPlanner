@@ -41,11 +41,16 @@ $(document).ready(function(){
   }
 
   function setPositionMarker(position) {
+    clearTimeout(etimeout);
     console.log("set position marker");
 
     // var startDefaultLatLng = new google.maps.LatLng(60.1885493977,24.8339133406);
     var endDefaultLatLng = null;
-
+    
+    if (startMarker) {
+      startMarker.setMap(null);
+    }
+    
     var startIcon = new google.maps.MarkerImage("images/your-position-small.png",null,null,new google.maps.Point(10,10));
     console.log(startIcon);
     startMarker = new google.maps.Marker({
@@ -65,7 +70,10 @@ $(document).ready(function(){
   }
 
   function errorCallback(error) {
-    console.log("something went wrong: " + error);
+    console.log("something went wrong: " + error + ", using default location...");
+    var positionJson = "{\"coords\":{\"latitude\":\"" + config.locs.otaniemi.lat + "\",\"longitude\":\"" + config.locs.otaniemi.lng + "\"}}";
+    var position = jQuery.parseJSON(positionJson);
+    setPositionMarker(position);
   }
 
   function initializeMap() {
@@ -110,8 +118,11 @@ $(document).ready(function(){
 
     map.mapTypes.set('custom', customMapType);
     map.setMapTypeId('custom');
-
-    navigator.geolocation.getCurrentPosition(setPositionMarker, errorCallback, {maximumAge:600000});
+    
+    if (navigator.geolocation) {
+      etimeout = setTimeout(errorCallback, 3000);
+      navigator.geolocation.getCurrentPosition(setPositionMarker, errorCallback, {maximumAge:1000});
+    }
 
     otherMarkers = [];
     $.each(config.locs, function (i, loc) {
