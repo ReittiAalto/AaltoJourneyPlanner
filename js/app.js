@@ -618,12 +618,16 @@ $(document).ready(function(){
   
   $(".fromdiv").hammer().bind("tap", function (ev) {
     $(this).addClass("selected");
+    $("#from").addClass("selected");
     $(".todiv").removeClass("selected");
+    $("#to").removeClass("selected");
   });
   
   $(".todiv").hammer().bind("tap", function (ev) {
     $(this).addClass("selected");
+    $("#to").addClass("selected");
     $(".fromdiv").removeClass("selected");
+    $("#from").removeClass("selected");
   });
   
   function toSelected() {
