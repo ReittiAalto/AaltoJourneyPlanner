@@ -201,15 +201,25 @@ $(document).ready(function(){
 
   function routeTo(latLng) {
     console.log("routeTo " + latLng);
-    if (!endMarker)
+    if (!endMarker && toSelected())
       addEndMarker(latLng);
 
     var coords = String(latLng).replace("(", "").replace(")", "").split(", ");
     var params = "?request=reverse_geocode&limit=1&coordinate=" + coords[1] + "," + coords[0];
     $.getJSON(config.api + params + defaultParams, function(data) {
-      $("#to").val(data[0].name);
+      if (toSelected()) {
+        $("#to").val(data[0].name);
+      } else {
+        $("#from").val(data[0].name);
+      }
+      
     });
-    endMarker.setPosition(latLng);
+    if (toSelected()) {
+      endMarker.setPosition(latLng);
+    }else {
+      startMarker.setPosition(latLng);
+    }
+    
     getRoute();
   }
 
@@ -606,5 +616,18 @@ $(document).ready(function(){
     getRoute();
   });
   
+  $(".fromdiv").hammer().bind("tap", function (ev) {
+    $(this).addClass("selected");
+    $(".todiv").removeClass("selected");
+  });
+  
+  $(".todiv").hammer().bind("tap", function (ev) {
+    $(this).addClass("selected");
+    $(".fromdiv").removeClass("selected");
+  });
+  
+  function toSelected() {
+    return $(".todiv").hasClass("selected");
+  }
   
 });

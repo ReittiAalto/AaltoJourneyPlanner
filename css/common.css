@@ -283,3 +283,7 @@ h1 {
     clear: both;
 
 }
+
+.selected{
+    background-color:red;
+}
