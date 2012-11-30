@@ -634,4 +634,39 @@ $(document).ready(function(){
     return $(".todiv").hasClass("selected");
   }
   
+  function sendRoute() {
+    params = "?request=geocode&key=" + $("#from").val();
+    $.getJSON(config.api + params + defaultParams, function(data) {
+      coords = data[0].coords.split(",");
+      lon = coords[0];
+      lat = coords[1];
+      newPosition = new google.maps.LatLng(parseFloat(lat), parseFloat(lon));
+      startMarker.setPosition(newPosition);
+      console.log("New Position String: " + startMarker.getPosition().toString());
+      params = "?request=geocode&key=" + $("#to").val();
+      $.getJSON(config.api + params + defaultParams, function(data) {
+        coords = data[0].coords.split(",");
+        lon = coords[0];
+        lat = coords[1];
+        newPosition = new google.maps.LatLng(parseFloat(lat), parseFloat(lon));
+        if (!endMarker) {
+          addEndMarker(newPosition);
+        }else {
+          endMarker.setPosition(newPosition);
+        }
+        getRoute();
+      });
+    });
+ 
+    
+    
+    
+    
+    
+  }
+  
+  $("#search").click(function() {
+    sendRoute();
+    });
+  
 });
