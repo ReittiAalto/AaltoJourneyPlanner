@@ -668,5 +668,16 @@ $(document).ready(function(){
   $("#search").click(function() {
     sendRoute();
     });
+    
+  $("#to").hammer().bind("doubletap", function(ev) {
+    sendRoute();
+  });
+  
+  $("#from").hammer().bind("doubletap", function(ev) {
+    temp = $("#from").val();
+    $("#from").val($("#to").val());
+    $("#to").val(temp)
+    sendRoute();
+  });
   
 });
