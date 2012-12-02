@@ -15,6 +15,7 @@ $(document).ready(function(){
   var directionsDisplay;
   var directionsService = new google.maps.DirectionsService();
   var distance;
+  var lastTime;
 
 
   function initializeTimeSelector(){
@@ -426,6 +427,7 @@ $(document).ready(function(){
           //if ()
           //result.append("<h3>"+(i+1)+"</h3>");
           var startTime = route.legs[0].locs[0].depTime;
+          lastTime = startTime;
           var endTime = route.legs[route.legs.length-1].locs[route.legs[route.legs.length-1].locs.length-1].arrTime;
           var routeLength = Math.round(route.length/100)/10;
           result.append("<div class='startTime'>Departure " + startTime.substr(8,2) + ":" + startTime.substr(10,2) + "</div>");
@@ -588,11 +590,19 @@ $(document).ready(function(){
     routeTo(dest);
   });
   
-  $("#sidebar").hammer({prevent_default:true}).bind("swipe", function (ev) {
+  $("#time").hammer({prevent_default:true}).bind("swipe", function (ev) {
     console.log("Dragged time");
     if (ev.direction == "right") {
       newDate = $('#time').scroller("getDate");
-      newDate.setMinutes(newDate.getMinutes() + 5);
+      if (lastTime == undefined) {
+        newDate.setMinutes(newDate.getMinutes() + 5);
+      } else {
+        minutes = lastTime.substr(10,2);
+        hours = lastTime.substr(8,2);
+        newDate.setMinutes(parseInt(minutes));
+        newDate.setHours(parseInt(hours));
+      }
+      
       currentTime = new Date();
       if (newDate.getMinutes() === currentTime.getMinutes() && newDate.getHours() === currentTime.getHours()) {
         $("#now").addClass("selected");
