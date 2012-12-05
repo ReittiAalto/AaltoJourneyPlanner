@@ -583,19 +583,19 @@ $(document).ready(function(){
         travelMode: google.maps.TravelMode.DRIVING,
         provideRouteAlternatives: true
     };
-    directionsService.route(request, function(result, status) {
-      if (directionsDisplay != null) {
-        directionsDisplay.setDirections({routes: []});
-      }
-      if (status == google.maps.DirectionsStatus.OK) {
-        result.routes = result.routes.sort(function(route1,route2) {return route1.legs[0].distance.value - route2.legs[0].distance.value});
-        directionsDisplay.setDirections(result);
-        distance = result.routes[0].legs[0].distance.text;
-        console.log("Route length: " + distance);
-      }
-    });
-    
     if (!routePage) {
+      directionsService.route(request, function(result, status) {
+        if (directionsDisplay != null) {
+          directionsDisplay.setDirections({routes: []});
+        }
+        if (status == google.maps.DirectionsStatus.OK) {
+          result.routes = result.routes.sort(function(route1,route2) {return route1.legs[0].distance.value - route2.legs[0].distance.value});
+          directionsDisplay.setDirections(result);
+          distance = result.routes[0].legs[0].distance.text;
+          console.log("Route length: " + distance);
+        }
+      });
+
       //Show kutsuplus dummy data
       hours = $('#time').scroller("getDate").getHours();
       minutes = $('#time').scroller("getDate").getMinutes();
