@@ -169,7 +169,7 @@ $(document).ready(function(){
     if (!routePage) {
       if (navigator.geolocation) {
         etimeout = setTimeout(errorCallback, 10000);
-        navigator.geolocation.getCurrentPosition(setPositionMarker, errorCallback, {maximumAge:1500});
+        navigator.geolocation.watchPosition(setPositionMarker, errorCallback, {maximumAge:1500});
       }
     } else {
       errorCallback();
