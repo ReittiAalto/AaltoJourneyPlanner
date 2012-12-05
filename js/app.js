@@ -470,10 +470,6 @@ $(document).ready(function(){
         var to = $("#to").val();
         var now = new Date();
         var today = now.toJSON().substring(0,10).replace(/[-:T]/g,'');
-        var scrollerTime = $('#time').scroller("getDate");
-        scrollerTime.setHours(scrollerTime.getHours() - now.getTimezoneOffset() / 60);
-        var time = today + "" + scrollerTime.toJSON().substring(10,16).replace(/[-:T]/g,'');
-        console.log("from: " + from + ", to: " + to, " at " + time);
         $.each(data, function(i,val){
           var route = val[0];
           var routePath= [];
@@ -540,7 +536,7 @@ $(document).ready(function(){
                 "format": "json",
                 "apiKey": config.bitly_apiKey,
                 "login": config.bitly_username,
-                "longUrl": window.location.href + "?from=" + from + "&to=" + to + "&time=" + time
+                "longUrl": window.location.href + "?from=" + from + "&to=" + to + "&time=" + startTime
               }, function(response) {
                 $("<div>").attr("id", "qrCode-" + i).html("<img src=\"" + response.data.url + ".qrcode?s=64\" />").appendTo(result);
               }
