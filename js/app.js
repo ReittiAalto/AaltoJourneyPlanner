@@ -734,12 +734,6 @@ $(document).ready(function(){
         getRoute();
       });
     });
- 
-    
-    
-    
-    
-    
   }
   
   $("#search").click(function() {
@@ -749,6 +743,7 @@ $(document).ready(function(){
   $("#to").hammer().bind("doubletap", function(ev) {
     sendRoute();
   });
+  $("#to").click($("#to").focus());
   
   $("#from").hammer().bind("doubletap", function(ev) {
     temp = $("#from").val();
@@ -756,5 +751,6 @@ $(document).ready(function(){
     $("#to").val(temp)
     sendRoute();
   });
+  $("#from").click($("#from").focus());
   
 });
