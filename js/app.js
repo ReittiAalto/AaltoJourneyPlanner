@@ -417,6 +417,14 @@ $(document).ready(function(){
     $.getJSON(config.api+params+defaultParams, function(data){
       $("#loader").fadeOut();
       if (data && data[0]) {
+        var from = $("#from").val().replace(/ /g, "--").replace(/,/g, "_");
+        var to = $("#to").val().replace(/ /g, "--").replace(/,/g, "_");
+        var now = new Date();
+        var today = now.toJSON().substring(0,10).replace(/[-:T]/g,'');
+        var scrollerTime = $('#time').scroller("getDate");
+        scrollerTime.setHours(scrollerTime.getHours() - now.getTimezoneOffset() / 60);
+        var time = today + "" + scrollerTime.toJSON().substring(10,16).replace(/[-:T]/g,'');
+        console.log("from: " + from + ", to: " + to, " at " + time);
         $.each(data, function(i,val){
           var route = val[0];
           var routePath= [];
@@ -477,6 +485,18 @@ $(document).ready(function(){
               routePath.push(new google.maps.LatLng(loc.y,loc.x))
             });
           });
+          if (config.bitly_username && config.bitly_apiKey) {
+            $.getJSON("http://api.bitly.com/v3/shorten?callback=?",
+              {
+                "format": "json",
+                "apiKey": config.bitly_apiKey,
+                "login": config.bitly_username,
+                "longUrl": "http://ihanhyväreittiopas.fi/" + from + "/" + to + "/departure/" + time + "/all/0/1"
+              }, function(response) {
+                $("<div>").attr("id", "qrCode-" + i).html("<img src=\"" + response.data.url + ".qrcode?s=64\" />").appendTo(result);
+              }
+            );
+          }
 
           result.find("span#walk-" + i).html(", Walking " + metersToKilometers(walkingLength) + " km");
 

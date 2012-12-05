@@ -162,6 +162,7 @@ h1 {
 }
 .result span.legs {
   white-space: nowrap;
+  line-height: 200%;
 }
 .result h3 {
   margin: 0;

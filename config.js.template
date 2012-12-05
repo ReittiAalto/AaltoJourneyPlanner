@@ -17,6 +17,8 @@ var config = {
   "api":"apiProxy/hsl/prod/",
   "user":"",
   "pass":"",
+  "bitly_username":"", // http://bitly.com/a/your_api_key
+  "bitly_apiKey":"",
   "locs": {
     "mapcenter": {
       "lat":60.181925,
