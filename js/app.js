@@ -1,10 +1,54 @@
 $(document).ready(function(){
   console.log("Hello World from app.js");
-  
+  var routePage;
   var defaultParams = "&format=json&epsg_in=wgs84&epsg_out=wgs84&user="+config.user+"&pass="+config.pass;
+  var pageParams = function () {
+    var query_string = {};
+    var query = window.location.search.substring(1);
+    var vars = query.split("&");
+    for (var i=0;i<vars.length;i++) {
+      var pair = vars[i].split("=");
+      	// If first entry with this name
+      if (typeof query_string[pair[0]] === "undefined") {
+        query_string[pair[0]] = pair[1];
+      	// If second entry with this name
+      } else if (typeof query_string[pair[0]] === "string") {
+        var arr = [ query_string[pair[0]], pair[1] ];
+        query_string[pair[0]] = arr;
+      	// If third or later entry with this name
+      } else {
+        query_string[pair[0]].push(pair[1]);
+      }
+    } 
+      return query_string;
+  } ();
+  
+  // Do we need width here?
+  if (window.innerWidth < 979 && pageParams.from && pageParams.to && pageParams.time) {
+    console.log("mobile route!");
+    routePage = true;
+    $.each($("body").children(), function(){
+      if ($(this).attr("id") != "map_canvas") {
+        $(this).hide();
+      } else {
+        $(this).css("width", "100%").css("height", "100%");
+      }
+    });
+    $("#from").val(pageParams.from);
+    $("#to").val(pageParams.to);
+    console.log(pageParams.time.substring(4,6));
+    var dateToSet = new Date(1970, 0, 1, pageParams.time.substring(8,10), pageParams.time.substring(10,12), 0, 0);
+    $('#time').scroller("setDate", dateToSet, true);
+  } else {
+    routePage = false;
+  }
   
   initializeMap();
   initializeTimeSelector();
+  
+  if (routePage) {  
+    sendRoute();
+  }
   
   var map;
   var startMarker;
@@ -42,7 +86,9 @@ $(document).ready(function(){
   }
 
   function setPositionMarker(position) {
-    clearTimeout(etimeout);
+    if (!(typeof etimeout === "undefined")) {
+      clearTimeout(etimeout);
+    }
     console.log("set position marker");
 
     // var startDefaultLatLng = new google.maps.LatLng(60.1885493977,24.8339133406);
@@ -120,9 +166,13 @@ $(document).ready(function(){
     map.mapTypes.set('custom', customMapType);
     map.setMapTypeId('custom');
     
-    if (navigator.geolocation) {
-      etimeout = setTimeout(errorCallback, 3000);
-      navigator.geolocation.getCurrentPosition(setPositionMarker, errorCallback, {maximumAge:1000});
+    if (!routePage) {
+      if (navigator.geolocation) {
+        etimeout = setTimeout(errorCallback, 10000);
+        navigator.geolocation.getCurrentPosition(setPositionMarker, errorCallback, {maximumAge:1500});
+      }
+    } else {
+      errorCallback();
     }
 
     otherMarkers = [];
@@ -352,9 +402,8 @@ $(document).ready(function(){
       var marker = null;
       if (type !== "walk") {
         var vehicleNumber = formatVehicleCode(leg.code,type);
-        marker = createMarker(
-          new google.maps.LatLng(leg.locs[0].coord.y,leg.locs[0].coord.x), vehicleNumber, type
-        );
+        marker =
+          createMarker(new google.maps.LatLng(leg.locs[0].coord.y,leg.locs[0].coord.x), vehicleNumber, type);
       }
       var path = [];
       $.each(leg.shape,function(i,shape){
@@ -417,8 +466,8 @@ $(document).ready(function(){
     $.getJSON(config.api+params+defaultParams, function(data){
       $("#loader").fadeOut();
       if (data && data[0]) {
-        var from = $("#from").val().replace(/ /g, "--").replace(/,/g, "_");
-        var to = $("#to").val().replace(/ /g, "--").replace(/,/g, "_");
+        var from = $("#from").val();
+        var to = $("#to").val();
         var now = new Date();
         var today = now.toJSON().substring(0,10).replace(/[-:T]/g,'');
         var scrollerTime = $('#time').scroller("getDate");
@@ -491,7 +540,7 @@ $(document).ready(function(){
                 "format": "json",
                 "apiKey": config.bitly_apiKey,
                 "login": config.bitly_username,
-                "longUrl": "http://ihanhyväreittiopas.fi/" + from + "/" + to + "/departure/" + time + "/all/0/1"
+                "longUrl": window.location.href + "?from=" + from + "&to=" + to + "&time=" + time
               }, function(response) {
                 $("<div>").attr("id", "qrCode-" + i).html("<img src=\"" + response.data.url + ".qrcode?s=64\" />").appendTo(result);
               }
@@ -549,14 +598,16 @@ $(document).ready(function(){
         console.log("Route length: " + distance);
       }
     });
-
-    //Show kutsuplus dummy data
-    hours = $('#time').scroller("getDate").getHours();
-    minutes = $('#time').scroller("getDate").getMinutes();
-    timestr = hours + ":" + minutes;
-    console.log(timestr);
-    buttonstr = '<button id="orderkutsu"> Order </button>';
-    $("#kutsuplus").html("<h2> Matkatarjoukset </h2> <p> Price: Dummy </p> <p> Distance: " + distance + " <p> Departure: " + timestr  + " </p> <p> Arrival: Dummy </p>" + buttonstr);
+    
+    if (!routePage) {
+      //Show kutsuplus dummy data
+      hours = $('#time').scroller("getDate").getHours();
+      minutes = $('#time').scroller("getDate").getMinutes();
+      timestr = hours + ":" + minutes;
+      console.log(timestr);
+      buttonstr = '<button id="orderkutsu"> Order </button>';
+      $("#kutsuplus").html("<h2> Matkatarjoukset </h2> <p> Price: Dummy </p> <p> Distance: " + distance + " <p> Departure: " + timestr  + " </p> <p> Arrival: Dummy </p>" + buttonstr);
+    }
   }
   
   function getLegTypeString(typeId){
