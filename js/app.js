@@ -94,7 +94,7 @@ $(document).ready(function(){
       console.log(startIcon);
       startMarker = new google.maps.Marker({
         position:googleLatLng,
-        draggable:true,
+        draggable:!routePage,
         title:"Start",
         icon:startIcon,
         zIndex:-50
@@ -199,32 +199,34 @@ $(document).ready(function(){
     }
 
     otherMarkers = [];
-    $.each(config.locs, function (i, loc) {
-      if (!("nomap" in loc)) {
-        console.log('other location:' + config.locs[i].title);
-        var latLng = new google.maps.LatLng(loc.lat, loc.lng);
+    if (!routePage) {
+      $.each(config.locs, function (i, loc) {
+        if (!("nomap" in loc)) {
+          console.log('other location:' + config.locs[i].title);
+          var latLng = new google.maps.LatLng(loc.lat, loc.lng);
 
-        //old icon: "https://chart.googleapis.com/chart?chst=d_map_spin&chld=1|0|ffffff|9|b|"+loc.title
-        var icon = "https://chart.googleapis.com/chart?chst=d_simple_text_icon_below&chld="
-          + loc.title + "|14|fff|" + "star|24|ffff00|333";
+          //old icon: "https://chart.googleapis.com/chart?chst=d_map_spin&chld=1|0|ffffff|9|b|"+loc.title
+          var icon = "https://chart.googleapis.com/chart?chst=d_simple_text_icon_below&chld="
+            + loc.title + "|14|fff|" + "star|24|ffff00|333";
 
-        var marker = new google.maps.Marker({
-          position:latLng,
-          draggable:false,
-          title:loc.title,
-          zIndex:0,
-          icon:icon
-        });
-        marker.setMap(map);
-        google.maps.event.addListener(marker, 'mouseup',
-          function () {
-            routeTo(latLng);
-          }
-        );
+          var marker = new google.maps.Marker({
+            position:latLng,
+            draggable:false,
+            title:loc.title,
+            zIndex:0,
+            icon:icon
+          });
+          marker.setMap(map);
+          google.maps.event.addListener(marker, 'mouseup',
+            function () {
+              routeTo(latLng);
+            }
+          );
 
-        otherMarkers.push(marker);
-      }
-    });
+          otherMarkers.push(marker);
+        }
+      });
+    }
 
     legLinesAndMarkers = [];
 
@@ -255,12 +257,14 @@ $(document).ready(function(){
       this._y = e.pixel.y;
     };
     new LongClick(map, 300);
-    google.maps.event.addListener(map, 'longpress', function (e) {
-      routeTo(e.latLng);
-    });
-    google.maps.event.addListener(map, 'click', function (e) {
-      routeTo(e.latLng);
-    });
+    if (!routePage) {
+      google.maps.event.addListener(map, 'longpress', function (e) {
+        routeTo(e.latLng);
+      });
+      google.maps.event.addListener(map, 'click', function (e) {
+        routeTo(e.latLng);
+      });
+    }
     
     var kutsuplusPolyline = new google.maps.Polyline({
       map: map,
@@ -309,7 +313,7 @@ $(document).ready(function(){
       var endIcon = new google.maps.MarkerImage("images/goal.png", null, null, new google.maps.Point(17, 52));
       endMarker = new google.maps.Marker({
         position:latLng,
-        draggable:true,
+        draggable:!routePage,
         icon:endIcon
       });
       endMarker.setMap(map);
