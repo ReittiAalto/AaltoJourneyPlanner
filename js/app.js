@@ -656,10 +656,15 @@ $(document).ready(function(){
           var kutsuplusDistance = result.routes[0].legs[0].distance.text;
 
           //Show kutsuplus dummy data
-          var hours = $('#time').scroller("getDate").getHours();
-          var minutes = $('#time').scroller("getDate").getMinutes();
+          var scrollerTime = $('#time').scroller("getDate");
+          var hours = scrollerTime.getHours();
+          var minutes = scrollerTime.getMinutes() < 10 ? "0" + scrollerTime.getMinutes() : scrollerTime.getMinutes();
           var timestr = hours + ":" + minutes;
-          //console.log(timestr);
+          var arrivalTime = new Date(scrollerTime.getTime() + result.routes[0].legs[0].duration.value * 1000);
+          var arrivalHours = arrivalTime.getHours();
+          var arrivalMinutes = arrivalTime.getMinutes() < 10 ? "0" + arrivalTime.getMinutes() : arrivalTime.getMinutes();
+          var arrivalStr = arrivalHours + ":" + arrivalMinutes;
+          console.log(result.routes[0].legs[0].duration);
           console.log("distance: " + kutsuplusDistance);
           console.log("price: " + (1.5 + (parseFloat(kutsuplusDistance.replace(",", ".")) * 0.15)));
           // Round to two decimals
@@ -668,7 +673,7 @@ $(document).ready(function(){
           var buttonstr = '<button id="orderkutsu"> Order </button>';
           $("#kutsuplus").html("<h2>Kutsuplus matkatarjoukset</h2> <p> Price: " + priceString + " </p> <p> Distance: "
             + kutsuplusDistance + " <p> Departure: " + timestr
-            + " </p> <p> Arrival: Dummy </p>" + buttonstr);
+            + " </p> <p> Arrival: " + arrivalStr + " </p>" + buttonstr);
         }
       });
     }
