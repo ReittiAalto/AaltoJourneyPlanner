@@ -497,6 +497,7 @@ $(document).ready(function(){
     }
 
     $("#loader").fadeIn();
+    $("#kutsuplus").removeClass("selected");
 
     // Clear current data
     $("#results").empty();
@@ -608,6 +609,7 @@ $(document).ready(function(){
               showRoute(route.legs);
               $(".result").removeClass("selected");
               $("#kutsuplus").removeClass("selected");
+              directionsDisplay.setDirections({routes: []});
               result.addClass("selected");
             }
           });
@@ -615,7 +617,7 @@ $(document).ready(function(){
           // Show the first result immediately
           if(i === 0){
             showRoute(route.legs);
-            result.addClass("selected")
+            result.addClass("selected");
           }
         });
         $.each($("span.legs"), function(i, legs) {
@@ -644,7 +646,13 @@ $(document).ready(function(){
           result.routes = result.routes.sort(function(route1,route2) {
             return route1.legs[0].distance.value - route2.legs[0].distance.value
           });
-          directionsDisplay.setDirections(result);
+          $("#kutsuplus").unbind("click");
+          $("#kutsuplus").bind("click", function(){
+            showRoute(null);
+            $(".result").removeClass("selected");
+            directionsDisplay.setDirections(result);
+            $(this).addClass("selected");
+          });
           var kutsuplusDistance = result.routes[0].legs[0].distance.text;
 
           //Show kutsuplus dummy data
