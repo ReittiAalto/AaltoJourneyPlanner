@@ -422,7 +422,7 @@ $(document).ready(function(){
       position: LatLng,
       draggable: false,
       title:markerTitle,
-      icon:"https://chart.googleapis.com/chart?chst=d_simple_text_icon_below&chld="+markerTitle+"|16|fff|"
+      icon:"https://chart.googleapis.com/chart?chst=d_simple_text_icon_below&chld="+markerTitle+"|16|ddd|"
         +icontype+"|16|"+color+"|333",
       zIndex:100
     });
