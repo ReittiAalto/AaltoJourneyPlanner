@@ -607,6 +607,7 @@ $(document).ready(function(){
               zoomMapToCoordinates(routePath);
               showRoute(route.legs);
               $(".result").removeClass("selected");
+              $("#kutsuplus").removeClass("selected");
               result.addClass("selected");
             }
           });
@@ -640,20 +641,28 @@ $(document).ready(function(){
           directionsDisplay.setDirections({routes: []});
         }
         if (status == google.maps.DirectionsStatus.OK) {
-          result.routes = result.routes.sort(function(route1,route2) {return route1.legs[0].distance.value - route2.legs[0].distance.value});
+          result.routes = result.routes.sort(function(route1,route2) {
+            return route1.legs[0].distance.value - route2.legs[0].distance.value
+          });
           directionsDisplay.setDirections(result);
-          distance = result.routes[0].legs[0].distance.text;
-          //console.log("Route length: " + distance);
+          var kutsuplusDistance = result.routes[0].legs[0].distance.text;
+
+          //Show kutsuplus dummy data
+          var hours = $('#time').scroller("getDate").getHours();
+          var minutes = $('#time').scroller("getDate").getMinutes();
+          var timestr = hours + ":" + minutes;
+          //console.log(timestr);
+          console.log("distance: " + kutsuplusDistance);
+          console.log("price: " + (1.5 + (parseFloat(kutsuplusDistance.replace(",", ".")) * 0.15)));
+          // Round to two decimals
+          var price = Math.round((1.5 + (parseFloat(kutsuplusDistance.replace(",", ".")) * 0.15))*100)/100;
+          var priceString = price.toString().replace(".", ",") + " &#8364";
+          var buttonstr = '<button id="orderkutsu"> Order </button>';
+          $("#kutsuplus").html("<h2>Kutsuplus matkatarjoukset</h2> <p> Price: " + priceString + " </p> <p> Distance: "
+            + kutsuplusDistance + " <p> Departure: " + timestr
+            + " </p> <p> Arrival: Dummy </p>" + buttonstr);
         }
       });
-
-      //Show kutsuplus dummy data
-      hours = $('#time').scroller("getDate").getHours();
-      minutes = $('#time').scroller("getDate").getMinutes();
-      timestr = hours + ":" + minutes;
-      console.log(timestr);
-      buttonstr = '<button id="orderkutsu"> Order </button>';
-      $("#kutsuplus").html("<h2> Matkatarjoukset </h2> <p> Price: Dummy </p> <p> Distance: " + distance + " <p> Departure: " + timestr  + " </p> <p> Arrival: Dummy </p>" + buttonstr);
     }
   }
   

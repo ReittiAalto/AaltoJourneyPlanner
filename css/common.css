@@ -106,8 +106,12 @@ h1 {
 }
 
 #kutsuplus {
-  width: 50%;
+  width: 48%;
   float: left;
+  margin: 5px;
+  padding: 10px;
+  border-top-left-radius: 3px;
+  border-bottom-right-radius: 3px;
   overflow-x: hidden;
   overflow-y: auto;
   background: white;
@@ -115,7 +119,7 @@ h1 {
 }
 
 #hslResults {
-  width: 50%;
+  width: 49%;
   float: right;
 }
 
@@ -131,11 +135,11 @@ h1 {
   position: relative;
   text-align: center;
 }
-.result:hover{
+.result:hover, #kutsuplus:hover {
   background-color: #efe;
   box-shadow: 1px 1px 5px rgba(0,0,0, .5);
 }
-.result.selected {
+.result.selected, #kutsuplus.selected {
   background-color: #cfc;
   box-shadow: 1px 1px 5px rgba(0,0,0, .5);
 }
