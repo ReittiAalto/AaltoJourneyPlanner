@@ -87,20 +87,26 @@ $(document).ready(function(){
 
   function setStartPosition(googleLatLng) {
     if (startMarker) {
-      startMarker.setMap(null);
+      startMarker.setPosition(googleLatLng);
+    } else {
+      var startIcon = new google.maps.MarkerImage("images/route-start.png", null, null, new google.maps.Point(10, 34));
+      console.log("set start marker");
+      console.log(startIcon);
+      startMarker = new google.maps.Marker({
+        position:googleLatLng,
+        draggable:true,
+        title:"Start",
+        icon:startIcon,
+        zIndex:-50
+      });
+      startMarker.setMap(map);
+      google.maps.event.addListener(startMarker, 'dragend',
+        function (event) {
+          $(".fromdiv").hammer().trigger("tap");
+          routeTo(event.latLng);
+        }
+      );
     }
-
-    var startIcon = new google.maps.MarkerImage("images/route-start.png",null,null,new google.maps.Point(10,34));
-    console.log("set start marker");
-    console.log(startIcon);
-    startMarker = new google.maps.Marker({
-      position: googleLatLng,
-      draggable: true,
-      title: "Start",
-      icon: startIcon,
-      zIndex:-50
-    });
-    startMarker.setMap(map);
   }
 
   function setPositionMarker(position) {
@@ -297,13 +303,23 @@ $(document).ready(function(){
 
   function addEndMarker(latLng) {
     console.log("addEndMarker: " + latLng);
-    var endIcon = new google.maps.MarkerImage("images/goal.png",null,null,new google.maps.Point(17,52));
-    endMarker = new google.maps.Marker({
-      position: latLng,
-      draggable: true,
-      icon: endIcon
-    });
-    endMarker.setMap(map);
+    if (endMarker) {
+      endMarker.setPosition(latLng);
+    } else {
+      var endIcon = new google.maps.MarkerImage("images/goal.png", null, null, new google.maps.Point(17, 52));
+      endMarker = new google.maps.Marker({
+        position:latLng,
+        draggable:true,
+        icon:endIcon
+      });
+      endMarker.setMap(map);
+      google.maps.event.addListener(endMarker, 'dragend',
+        function (event) {
+          $(".todiv").hammer().trigger("tap");
+          routeTo(event.latLng);
+        }
+      );
+    }
   }
 
   function initializeSwitches() {
@@ -401,7 +417,7 @@ $(document).ready(function(){
     } else {
       markerTitle = vehicle +", "+depTime.substr(8,2)+":"+depTime.substr(10,2);
     }
-    console.log(markerTitle);
+    // console.log(markerTitle);
     var marker = new google.maps.Marker({
       position: LatLng,
       draggable: false,
@@ -623,7 +639,7 @@ $(document).ready(function(){
           result.routes = result.routes.sort(function(route1,route2) {return route1.legs[0].distance.value - route2.legs[0].distance.value});
           directionsDisplay.setDirections(result);
           distance = result.routes[0].legs[0].distance.text;
-          console.log("Route length: " + distance);
+          //console.log("Route length: " + distance);
         }
       });
 
