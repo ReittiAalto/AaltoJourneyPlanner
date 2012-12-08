@@ -672,6 +672,8 @@ $(document).ready(function(){
         }
       });
     }
+    $("#map_canvas").css("height", "75%");
+    $("#bottom").css("height", "17%");
   }
   
   function getLegTypeString(typeId){

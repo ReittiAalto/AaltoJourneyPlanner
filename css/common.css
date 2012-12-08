@@ -26,7 +26,7 @@ h1 {
   font-size: 36px;
 }
 #map_canvas {
-  height:75%;
+  height:91%;
   position: relative;
 }
 #map_switches {
@@ -61,7 +61,7 @@ h1 {
   overflow-x: hidden;
   overflow-y: auto;
   display: block;
-  padding: 5px 10px;
+  padding: 1% 2%;
   background: #efe;
   box-shadow: 1px 1px 5px rgba(0,0,0, .4);
   line-height: 100%;
@@ -105,7 +105,7 @@ h1 {
 }
 
 #bottom {
-  height: 17%;
+  height: 0%;
   overflow: auto;
 }
 
