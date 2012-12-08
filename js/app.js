@@ -137,7 +137,8 @@ $(document).ready(function(){
   }
 
   function errorCallback(error) {
-    console.log("something went wrong: " + error + ", using default location...");
+    console.log("something went wrong, using default location...");
+    console.log(error);
     var positionJson = "{\"coords\":{\"latitude\":\"" + config.locs.otaniemi.lat + "\",\"longitude\":\"" + config.locs.otaniemi.lng + "\"}}";
     var position = jQuery.parseJSON(positionJson);
     setPositionMarker(position);
