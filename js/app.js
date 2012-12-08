@@ -394,7 +394,13 @@ $(document).ready(function(){
 
     //old icon: "https://chart.googleapis.com/chart?chst=d_map_spin&chld=1|0|"+color+"|11|b|"+vehicle
     //icon with dept time "https://chart.googleapis.com/chart?chst=d_text_outline&chld=FFF|14|h|000|b|" + markerTitle
-    var markerTitle = vehicle +", "+depTime.substr(8,2)+":"+depTime.substr(10,2);
+    vehicle = vehicle.replace(/ /g, "");
+    var markerTitle;
+    if (vehicle === "") {
+      markerTitle = depTime.substr(8,2)+":"+depTime.substr(10,2);
+    } else {
+      markerTitle = vehicle +", "+depTime.substr(8,2)+":"+depTime.substr(10,2);
+    }
     console.log(markerTitle);
     var marker = new google.maps.Marker({
       position: LatLng,
@@ -465,13 +471,13 @@ $(document).ready(function(){
 
   function getRoute() {
     console.log("getRoute");
-    
+
     if (!startMarker || !endMarker){
     	return false;
     }
-    
+
     $("#loader").fadeIn();
-    
+
     // Clear current data
     $("#results").empty();
     showRoute({});
@@ -479,7 +485,7 @@ $(document).ready(function(){
     var fromLatLng = startMarker.getPosition();
     var from = fromLatLng.lng() + "," + fromLatLng.lat();
     //console.log("from:"+from)
-    
+
     var toLatLng = endMarker.getPosition();
     var to = toLatLng.lng() + "," + toLatLng.lat();
     //console.log("to:"+to)
@@ -777,5 +783,5 @@ $(document).ready(function(){
     sendRoute();
   });
   $("#from").click($("#from").focus());
-  
+
 });
