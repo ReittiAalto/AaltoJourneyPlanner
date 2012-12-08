@@ -36,7 +36,6 @@ $(document).ready(function(){
     });
     $("#from").val(pageParams.from);
     $("#to").val(pageParams.to);
-    console.log(pageParams.time.substring(4,6));
     var dateToSet = new Date(1970, 0, 1, pageParams.time.substring(8,10), pageParams.time.substring(10,12), 0, 0);
     $('#time').scroller("setDate", dateToSet, true);
   } else {
@@ -53,6 +52,7 @@ $(document).ready(function(){
   var map;
   var startMarker;
   var endMarker;
+  var positionMarker;
   var otherMarkers;
   var polyline;
   var legLinesAndMarkers;
@@ -85,28 +85,48 @@ $(document).ready(function(){
   	$("#now").addClass("selected");
   }
 
+  function setStartPosition(googleLatLng) {
+    if (startMarker) {
+      startMarker.setMap(null);
+    }
+
+    var startIcon = new google.maps.MarkerImage("images/route-start.png",null,null,new google.maps.Point(10,34));
+    console.log("set start marker");
+    console.log(startIcon);
+    startMarker = new google.maps.Marker({
+      position: googleLatLng,
+      draggable: true,
+      title: "Start",
+      icon: startIcon,
+      zIndex:-50
+    });
+    startMarker.setMap(map);
+  }
+
   function setPositionMarker(position) {
     if (!(typeof etimeout === "undefined")) {
       clearTimeout(etimeout);
     }
     console.log("set position marker");
-
-    // var startDefaultLatLng = new google.maps.LatLng(60.1885493977,24.8339133406);
-    var endDefaultLatLng = null;
     
-    if (startMarker) {
-      startMarker.setMap(null);
+    if (positionMarker) {
+      positionMarker.setMap(null);
     }
     
-    var startIcon = new google.maps.MarkerImage("images/your-position-small.png",null,null,new google.maps.Point(10,10));
-    console.log(startIcon);
-    startMarker = new google.maps.Marker({
+    var positionIcon = new google.maps.MarkerImage("images/your-position-small.png",null,null,new google.maps.Point(10,10));
+    console.log(positionIcon);
+    positionMarker = new google.maps.Marker({
       position: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
       draggable: false,
-      title: "Start",
-      icon: startIcon
+      title: "Current position",
+      icon: positionIcon,
+      zIndex:150
     });
-    startMarker.setMap(map);
+    positionMarker.setMap(map);
+
+    if (!startMarker) {
+      setStartPosition(positionMarker.position);
+    }
 
     var params = "?request=reverse_geocode&limit=1&coordinate="
       + position.coords.longitude + "," + position.coords.latitude;
@@ -165,14 +185,10 @@ $(document).ready(function(){
 
     map.mapTypes.set('custom', customMapType);
     map.setMapTypeId('custom');
-    
-    if (!routePage) {
-      if (navigator.geolocation) {
-        etimeout = setTimeout(errorCallback, 10000);
-        navigator.geolocation.watchPosition(setPositionMarker, errorCallback, {maximumAge:1500});
-      }
-    } else {
-      errorCallback();
+
+    if (navigator.geolocation) {
+      etimeout = setTimeout(errorCallback, 10000);
+      navigator.geolocation.watchPosition(setPositionMarker, errorCallback, {enableHighAccuracy:true, maximumAge:1500});
     }
 
     otherMarkers = [];
@@ -267,8 +283,12 @@ $(document).ready(function(){
     });
     if (toSelected()) {
       endMarker.setPosition(latLng);
-    }else {
-      startMarker.setPosition(latLng);
+    } else {
+      if (startMarker) {
+        startMarker.setPosition(latLng);
+      } else {
+        setStartPosition(latLng);
+      }
     }
     
     getRoute();
@@ -367,18 +387,21 @@ $(document).ready(function(){
 
     return polyline;
   }
-  function createMarker(LatLng, vehicle, type) {
+  function createMarker(LatLng, vehicle, type, depTime) {
     var color = getTransportHex(type);
     var icontype = getIconType(type);
 
     //old icon: "https://chart.googleapis.com/chart?chst=d_map_spin&chld=1|0|"+color+"|11|b|"+vehicle
-
+    //icon with dept time "https://chart.googleapis.com/chart?chst=d_text_outline&chld=FFF|14|h|000|b|" + markerTitle
+    var markerTitle = vehicle +", "+depTime.substr(8,2)+":"+depTime.substr(10,2);
+    console.log(markerTitle);
     var marker = new google.maps.Marker({
       position: LatLng,
       draggable: false,
-      title: vehicle+"",
-      icon: "https://chart.googleapis.com/chart?chst=d_simple_text_icon_below&chld="+vehicle+"|16|fff|"
-        +icontype+"|16|"+color+"|333"
+      title:markerTitle,
+      icon:"https://chart.googleapis.com/chart?chst=d_simple_text_icon_below&chld="+markerTitle+"|16|fff|"
+        +icontype+"|16|"+color+"|333",
+      zIndex:100
     });
     marker.setMap(map);
     return marker;
@@ -403,7 +426,8 @@ $(document).ready(function(){
       if (type !== "walk") {
         var vehicleNumber = formatVehicleCode(leg.code,type);
         marker =
-          createMarker(new google.maps.LatLng(leg.locs[0].coord.y,leg.locs[0].coord.x), vehicleNumber, type);
+          createMarker(new google.maps.LatLng(leg.locs[0].coord.y,leg.locs[0].coord.x),
+            vehicleNumber, type, leg.locs[0].depTime);
       }
       var path = [];
       $.each(leg.shape,function(i,shape){
@@ -441,7 +465,7 @@ $(document).ready(function(){
   function getRoute() {
     console.log("getRoute");
     
-    if(!startMarker || !endMarker){
+    if (!startMarker || !endMarker){
     	return false;
     }
     
