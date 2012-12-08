@@ -11,6 +11,10 @@ html * {
   cursor: default;
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
 h1 {
   position:absolute;
   top: 8%;
@@ -102,7 +106,7 @@ h1 {
 
 #bottom {
   height: 17%;
-  overflow: scroll;
+  overflow: auto;
 }
 
 #kutsuplus {
