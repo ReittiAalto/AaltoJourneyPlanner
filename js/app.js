@@ -676,9 +676,9 @@ $(document).ready(function(){
             + " </p> <p> Arrival: " + arrivalStr + " </p>" + buttonstr);
         }
       });
+      $("#map_canvas").css("height", "75%");
+      $("#bottom").css("height", "17%");
     }
-    $("#map_canvas").css("height", "75%");
-    $("#bottom").css("height", "17%");
   }
   
   function getLegTypeString(typeId){
