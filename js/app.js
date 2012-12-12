@@ -24,7 +24,7 @@ $(document).ready(function(){
   } ();
   
   // Do we need width here?
-  if (window.innerWidth < 979 && pageParams.from && pageParams.to && pageParams.time) {
+  if (pageParams.from && pageParams.to && pageParams.time) {
     console.log("mobile route!");
     routePage = true;
     $.each($("body").children(), function(){
@@ -134,12 +134,14 @@ $(document).ready(function(){
       setStartPosition(positionMarker.position);
     }
 
-    var params = "?request=reverse_geocode&limit=1&coordinate="
-      + position.coords.longitude + "," + position.coords.latitude;
-    console.log(config.api + params + defaultParams);
-    $.getJSON(config.api + params + defaultParams, function(data) {
-      $("#from").val(data[0].name);
-    });
+    if ($("#from").val() === "") {
+        var params = "?request=reverse_geocode&limit=1&coordinate="
+            + position.coords.longitude + "," + position.coords.latitude;
+        console.log(config.api + params + defaultParams);
+        $.getJSON(config.api + params + defaultParams, function(data) {
+            $("#from").val(data[0].name);
+        });
+    }
   }
 
   function errorCallback(error) {
