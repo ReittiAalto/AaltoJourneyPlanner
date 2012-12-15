@@ -6,18 +6,19 @@
   Following optional parameters are available for location items:
   
   "nomap": no marker on the map
-  "start": default start point
-  "end": default end poit
   
   Reittiopas account can be requested from:
   http://developer.reittiopas.fi/pages/en/account-request.php
+  
+  Bitly username and api key can be requested from:
+  http://bitly.com/a/your_api_key
  */
 
 var config = {
   "api":"apiProxy/hsl/prod/",
   "user":"",
   "pass":"",
-  "bitly_username":"", // http://bitly.com/a/your_api_key
+  "bitly_username":"",
   "bitly_apiKey":"",
   "locs": {
     "mapcenter": {
@@ -29,7 +30,6 @@ var config = {
       "title":"Otaniemi",
       "lat":60.186982,
       "lng":24.827256,
-      "start":true,
       "nomap":true
     },
     "toolo": {
