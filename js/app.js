@@ -673,7 +673,7 @@ $(document).ready(function(){
           var price = Math.round((1.5 + (parseFloat(kutsuplusDistance.replace(",", ".")) * 0.15))*100)/100;
           var priceString = price.toString().replace(".", ",") + " &#8364";
           var buttonstr = '<button id="orderkutsu"> Order </button>';
-          $("#kutsuplus").html("<h2>Kutsuplus matkatarjoukset</h2> <p> Price: " + priceString + " </p> <p> Distance: "
+          $("#kutsuplus").html("<h2>Kutsuplus.fi trip offers</h2> <p> Price: " + priceString + " </p> <p> Distance: "
             + kutsuplusDistance + " <p> Departure: " + timestr
             + " </p> <p> Arrival: " + arrivalStr + " </p>" + buttonstr);
         }
